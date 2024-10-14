@@ -3,17 +3,20 @@ from werkzeug.utils import secure_filename
 from azure.storage.blob import BlobServiceClient
 import os
 import io
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'supersecretkey'  # Needed for sessions
+app.secret_key = os.getenv('SECRET_KEY')  # Set secret key from environment variable
 
-# Azure Blob Storage details
-account_url = "https://myflaskwebappstorage.blob.core.windows.net/"
-sas_token = "sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupitfx&se=2024-10-18T23:02:54Z&st=2024-10-14T15:02:54Z&sip=20.48.204.1&spr=https,http&sig=VabundpfyHolz0uLYZPQByZrBGiOvt98n7%2B%2FJteFv%2FA%3D"
-container_name = "uploads"  # Replace with your container name
+# Azure Blob Storage connection string and container name from .env file
+connection_string = os.getenv('AZURE_STORAGE_CONNECTION_STRING')
+container_name = os.getenv('STORAGE_CONTAINER_NAME')
 
-# Initialize BlobServiceClient
-blob_service_client = BlobServiceClient(account_url=account_url, credential=sas_token)
+# Initialize BlobServiceClient with connection string
+blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 container_client = blob_service_client.get_container_client(container_name)
 
 # Set upload folder and allowed file extensions
