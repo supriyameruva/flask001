@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Azure Blob Storage - List Files</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+        }
+        a {
+            text-decoration: none;
+            color: blue;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>List of Files in Azure Blob Storage</h1>
+    
+    {% if blobs|length == 0 %}
+        <p>No files found in the Azure Blob Storage.</p>
+    {% else %}
+        <ul>
+            {% for blob in blobs %}
+                <li>
+                    {{ blob.name }} - 
+                    <a href="/download/{{ blob.name }}">Download</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+</html>
