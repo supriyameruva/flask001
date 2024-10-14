@@ -5,23 +5,20 @@ import os
 import io
 
 app = Flask(__name__)
-app.secret_key = os.getenv('SECRET_KEY', 'supersecretkey')  # Secure key from .env or default
+app.secret_key = 'supersecretkey'  # Needed for sessions
 
-# Azure Blob Storage details from environment variables
-account_url = os.getenv('STORAGE_ACCOUNT_URL')
-sas_token = os.getenv('STORAGE_SAS_TOKEN')
-container_name = os.getenv('STORAGE_CONTAINER_NAME')
+# Azure Blob Storage details
+account_url = "https://myflaskwebappstorage.blob.core.windows.net/"
+sas_token = "sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-10-17T07:48:24Z&st=2024-10-13T23:48:24Z&spr=https&sig=5QXXaTrWGsVmwyJ9Y%2B8SkY2jQbymPNt%2FCjWqErTOMdY%3D"
+container_name = "uploads"  # Replace with your container name
 
 # Initialize BlobServiceClient
 blob_service_client = BlobServiceClient(account_url=account_url, credential=sas_token)
 container_client = blob_service_client.get_container_client(container_name)
 
 # Set upload folder and allowed file extensions
-app.config['UPLOAD_FOLDER'] = os.getenv('UPLOAD_FOLDER', 'uploads')
+app.config['UPLOAD_FOLDER'] = 'uploads/'
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'gif', 'txt', 'pdf'}
-
-# Set max file size (e.g., 16 MB)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
 
 # Home page route
 @app.route('/')
@@ -34,7 +31,8 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if username == 'admin' and password == 'password':  # Simple authentication
+        # Simple authentication (replace with a real user database check)
+        if username == 'admin' and password == 'password':
             session['user'] = username
             return redirect(url_for('index'))
         return 'Invalid credentials'
@@ -47,38 +45,22 @@ def allowed_file(filename):
 # File upload route
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
-    try:
-        if request.method == 'POST':
-            file = request.files['file']
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    if request.method == 'POST':
+        file = request.files['file']
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
 
-                # Ensure upload folder exists
-                if not os.path.exists(app.config['UPLOAD_FOLDER']):
-                    os.makedirs(app.config['UPLOAD_FOLDER'])
+            # Upload file to Azure Blob Storage
+            blob_client = container_client.get_blob_client(filename)
+            with open(file_path, "rb") as data:
+                blob_client.upload_blob(data)
 
-                # Save file locally before uploading to Azure
-                file.save(file_path)
-
-                # Upload file to Azure Blob Storage
-                blob_client = container_client.get_blob_client(filename)
-                with open(file_path, "rb") as data:
-                    blob_client.upload_blob(data)
-
-                # Optionally remove the local copy after uploading
-                os.remove(file_path)
-                return f"File {filename} uploaded successfully to Azure Blob Storage"
-            else:
-                return 'File type not allowed', 400
-    except Exception as e:
-        return f"Error during file upload: {e}", 500
+            os.remove(file_path)  # Optionally remove the local copy after upload
+            return f"File {filename} uploaded successfully to Azure Blob Storage"
+        return 'File not allowed'
     return render_template('upload.html')
-
-# Handle large file errors
-@app.errorhandler(413)
-def request_entity_too_large(error):
-    return 'File is too large. Maximum upload size is 16 MB.', 413
 
 # List all blobs (files) in the Azure Blob Storage container
 @app.route('/list')
