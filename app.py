@@ -9,7 +9,7 @@ app.secret_key = 'supersecretkey'  # Needed for sessions
 
 # Azure Blob Storage details
 account_url = "https://myflaskwebappstorage.blob.core.windows.net/"
-sas_token = "sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupiytfx&se=2024-10-17T07:48:24Z&st=2024-10-13T23:48:24Z&spr=https&sig=5QXXaTrWGsVmwyJ9Y%2B8SkY2jQbymPNt%2FCjWqErTOMdY%3D"
+sas_token = "sv=2022-11-02&ss=bfqt&srt=sco&sp=rwdlacupitfx&se=2024-10-18T23:02:54Z&st=2024-10-14T15:02:54Z&sip=20.48.204.1&spr=https,http&sig=VabundpfyHolz0uLYZPQByZrBGiOvt98n7%2B%2FJteFv%2FA%3D"
 container_name = "uploads"  # Replace with your container name
 
 # Initialize BlobServiceClient
