@@ -30,26 +30,36 @@
         button:hover {
             background-color: #45a049;
         }
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+        .success-message {
+            color: green;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <h1>Upload a File</h1>
+    <h1>Upload a File to Azure Files Share</h1>
     <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload') }}">
         <label for="file">Choose a file:</label>
         <input type="file" name="file" id="file" required>
         <button type="submit">Upload</button>
     </form>
 
+    <!-- Display error or success messages -->
     {% if error %}
-    <p style="color:red;">{{ error }}</p>
+    <p class="error-message">{{ error }}</p>
     {% endif %}
 
     {% if success %}
-    <p style="color:green;">{{ success }}</p>
+    <p class="success-message">{{ success }}</p>
     {% endif %}
 
     <hr>
     <h2>Uploaded Files</h2>
+    <!-- Link to list the uploaded files in Azure Files share -->
     <a href="{{ url_for('list_files') }}">View uploaded files</a>
 </body>
 </html>

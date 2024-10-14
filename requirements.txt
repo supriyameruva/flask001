@@ -3,3 +3,4 @@ Werkzeug==2.3.6
 azure-storage-blob==12.17.0
 python-dotenv==1.0.0
 azure-identity
+azure-storage-file-share
