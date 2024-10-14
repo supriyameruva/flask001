@@ -4,6 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            max-width: 600px;
+        }
+        h1 {
+            color: #333;
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
     <h1>Upload a File</h1>
@@ -16,5 +43,13 @@
     {% if error %}
     <p style="color:red;">{{ error }}</p>
     {% endif %}
+
+    {% if success %}
+    <p style="color:green;">{{ success }}</p>
+    {% endif %}
+
+    <hr>
+    <h2>Uploaded Files</h2>
+    <a href="{{ url_for('list_files') }}">View uploaded files</a>
 </body>
 </html>
