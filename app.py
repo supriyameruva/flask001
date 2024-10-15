@@ -3,7 +3,12 @@ from werkzeug.utils import secure_filename
 from azure.identity import DefaultAzureCredential
 from azure.storage.blob import BlobServiceClient
 from azure.storage.fileshare import ShareServiceClient
+from azure.core.exceptions import ResourceExistsError
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')  # Ensure this is set in your environment
@@ -43,8 +48,10 @@ def upload_blob():
             # Upload to Azure Blob Storage
             blob_client = blob_service_client.get_blob_client(container="uploads", blob=filename)
             try:
-                blob_client.upload_blob(file)
+                blob_client.upload_blob(file, overwrite=True)  # Overwrite if the blob exists
                 return f"File {filename} uploaded successfully to Azure Blob Storage"
+            except ResourceExistsError:
+                error_message = f"File {filename} already exists in Blob Storage."
             except Exception as e:
                 error_message = f"Failed to upload file: {e}"
         else:
@@ -122,5 +129,4 @@ def data():
     return render_template('data.html')
 
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 8000))  # Use the port specified in the environment variable or default to 8000
-    app.run(host='0.0.0.0', port=port, debug=True)  # Listen on all interfaces
+    app.run(host='0.0.0.0', port=8000, debug=True)  # Listen on all interfaces and port 8000
