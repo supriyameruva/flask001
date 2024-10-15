@@ -4,62 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>File Upload</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            max-width: 600px;
-        }
-        h1 {
-            color: #333;
-        }
-        input[type="file"] {
-            margin: 10px 0;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .error-message {
-            color: red;
-            margin-top: 10px;
-        }
-        .success-message {
-            color: green;
-            margin-top: 10px;
-        }
-    </style>
 </head>
 <body>
-    <h1>Upload a File to Azure Files Share</h1>
-    <form method="POST" enctype="multipart/form-data" action="{{ url_for('upload') }}">
-        <label for="file">Choose a file:</label>
+    <h1>Upload File</h1>
+
+    <!-- Display error message if any -->
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+
+    <!-- Form for uploading files -->
+    <form action="" method="POST" enctype="multipart/form-data">
+        <label for="file">Choose a file to upload:</label>
         <input type="file" name="file" id="file" required>
-        <button type="submit">Upload</button>
+        <br><br>
+        <label for="storage_type">Select Storage Type:</label>
+        <select name="storage_type" id="storage_type">
+            <option value="blob">Azure Blob Storage</option>
+            <option value="file">Azure Files Share</option>
+        </select>
+        <br><br>
+        <button type="submit">Upload File</button>
     </form>
 
-    <!-- Display error or success messages -->
-    {% if error %}
-    <p class="error-message">{{ error }}</p>
-    {% endif %}
-
-    {% if success %}
-    <p class="success-message">{{ success }}</p>
-    {% endif %}
-
-    <hr>
-    <h2>Uploaded Files</h2>
-    <!-- Link to list the uploaded files in Azure Files share -->
-    <a href="{{ url_for('list_files') }}">View uploaded files</a>
+    <!-- Link to list files -->
+    <p><a href="/list">View Uploaded Files (Azure Files)</a></p>
+    <p><a href="/list_blobs">View Uploaded Files (Azure Blob Storage)</a></p>
 </body>
 </html>

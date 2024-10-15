@@ -1,14 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, session, send_file
+from flask import Flask, render_template, request, redirect, url_for, send_file
 from werkzeug.utils import secure_filename
 from azure.identity import DefaultAzureCredential
-from azure.storage.blob import BlobServiceClient
+from azure.storage.blob import BlobServiceClient, BlobClient
 from azure.storage.fileshare import ShareServiceClient
-from azure.core.exceptions import ResourceExistsError
 import os
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')  # Ensure this is set in your environment
@@ -37,51 +32,46 @@ def allowed_file(filename):
 # File upload route (Azure Blob Storage)
 @app.route('/upload_blob', methods=['GET', 'POST'])
 def upload_blob():
-    error_message = None  # Initialize an error message variable
+    error_message = None
     if request.method == 'POST':
-        file = request.files.get('file')  # Use .get() for safer access
+        file = request.files.get('file')
         if not file:
             error_message = 'No file selected for upload.'
         elif file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            
-            # Upload to Azure Blob Storage
             blob_client = blob_service_client.get_blob_client(container="uploads", blob=filename)
             try:
-                blob_client.upload_blob(file, overwrite=True)  # Overwrite if the blob exists
+                blob_client.upload_blob(file)
                 return f"File {filename} uploaded successfully to Azure Blob Storage"
-            except ResourceExistsError:
-                error_message = f"File {filename} already exists in Blob Storage."
             except Exception as e:
                 error_message = f"Failed to upload file: {e}"
         else:
             error_message = 'File type not allowed.'
     
-    return render_template('upload.html', error=error_message)  # Pass error message to the template
+    return render_template('upload.html', error=error_message)
 
 # File upload route (Azure Files share)
 @app.route('/upload', methods=['GET', 'POST'])
-def upload():
-    error_message = None  # Initialize an error message variable
+def upload_file():
+    error_message = None
     if request.method == 'POST':
-        file = request.files.get('file')  # Use .get() for safer access
+        file = request.files.get('file')
         if not file:
             error_message = 'No file selected for upload.'
         elif file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            # Check for file existence and handle duplicates
             if os.path.exists(file_path):
                 error_message = f'File {filename} already exists. Please rename it and try again.'
             else:
-                file.save(file_path)  # Save to Azure Files share
+                file.save(file_path)
                 return f"File {filename} uploaded successfully to Azure Files share"
         else:
             error_message = 'File type not allowed.'
     
-    return render_template('upload.html', error=error_message)  # Pass error message to the template
+    return render_template('upload.html', error=error_message)
 
-# List all files in Azure Blob Storage
+# List files in Azure Blob Storage
 @app.route('/list_blobs')
 def list_blobs():
     try:
@@ -91,16 +81,16 @@ def list_blobs():
     except Exception as e:
         return f"Failed to list blobs: {e}"
 
-# List all files in Azure Files share
+# List files in Azure Files share
 @app.route('/list')
 def list_files():
     try:
-        files = os.listdir(app.config['UPLOAD_FOLDER'])  # List files in the mounted share
+        files = os.listdir(app.config['UPLOAD_FOLDER'])
         return render_template('list.html', files=files)
     except Exception as e:
         return f"Failed to list files: {e}"
 
-# Download a file from Azure Blob Storage
+# Download file from Azure Blob Storage
 @app.route('/download_blob/<filename>')
 def download_blob(filename):
     try:
@@ -110,7 +100,7 @@ def download_blob(filename):
     except Exception as e:
         return f"Error downloading blob: {e}"
 
-# Download a file from Azure Files share
+# Download file from Azure Files share
 @app.route('/download/<filename>')
 def download_file(filename):
     try:
@@ -119,14 +109,5 @@ def download_file(filename):
     except Exception as e:
         return f"Error downloading file: {e}"
 
-# Data submission form route (optional)
-@app.route('/data', methods=['GET', 'POST'])
-def data():
-    if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        return f"Name: {name}, Email: {email}"
-    return render_template('data.html')
-
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)  # Listen on all interfaces and port 8000
+    app.run(host='0.0.0.0', port=8000)
