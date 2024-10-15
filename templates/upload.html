@@ -3,32 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Upload</title>
+    <title>Upload File</title>
 </head>
 <body>
-    <h1>Upload File</h1>
-
-    <!-- Display error message if any -->
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
-
-    <!-- Form for uploading files -->
-    <form action="" method="POST" enctype="multipart/form-data">
-        <label for="file">Choose a file to upload:</label>
-        <input type="file" name="file" id="file" required>
-        <br><br>
-        <label for="storage_type">Select Storage Type:</label>
-        <select name="storage_type" id="storage_type">
-            <option value="blob">Azure Blob Storage</option>
-            <option value="file">Azure Files Share</option>
-        </select>
-        <br><br>
-        <button type="submit">Upload File</button>
+    <h1>Upload a File to Azure Blob Storage</h1>
+    <form method="POST" enctype="multipart/form-data" action="/upload">
+        <input type="file" name="file">
+        <input type="submit" value="Upload">
     </form>
 
-    <!-- Link to list files -->
-    <p><a href="/list">View Uploaded Files (Azure Files)</a></p>
-    <p><a href="/list_blobs">View Uploaded Files (Azure Blob Storage)</a></p>
+    <h2>List Uploaded Files</h2>
+    <a href="/list">View Blob Storage Files</a>
+    <br>
+    <a href="/fileshare">View Azure Files</a>
 </body>
 </html>
