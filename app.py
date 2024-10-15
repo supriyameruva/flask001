@@ -122,4 +122,5 @@ def data():
     return render_template('data.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.getenv('PORT', 8000))  # Use the port specified in the environment variable or default to 8000
+    app.run(host='0.0.0.0', port=port, debug=True)  # Listen on all interfaces
