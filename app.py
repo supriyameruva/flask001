@@ -16,11 +16,11 @@ credential = ManagedIdentityCredential()
 
 # Blob Storage client
 blob_service_client = BlobServiceClient(
-    f"https://{STORAGE_ACCOUNT_NAME}.blob.core.windows.net", credential=credential)
+    f"https://myflaskwebappstorage.blob.core.windows.net", credential=credential)
 
 # Azure File Share client
 share_client = ShareClient(
-    f"https://{STORAGE_ACCOUNT_NAME}.file.core.windows.net/{SHARE_NAME}", credential=credential)
+    f"https://myflaskwebappstorage.file.core.windows.net/myfileshare", credential=credential)
 
 @app.route('/')
 def index():
