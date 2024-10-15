@@ -1,10 +1,11 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, flash
 from azure.identity import ManagedIdentityCredential
 from azure.storage.blob import BlobServiceClient
 from azure.storage.fileshare import ShareClient
 
 app = Flask(__name__)
+app.secret_key = os.getenv('SECRET_KEY')  # Ensure SECRET_KEY is set in your environment
 
 # Load environment variables
 STORAGE_ACCOUNT_NAME = os.getenv('AZURE_STORAGE_ACCOUNT_NAME')
@@ -29,19 +30,23 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
+        flash('No file part')
         return redirect(request.url)
-    
+
     file = request.files['file']
     if file.filename == '':
+        flash('No selected file')
         return redirect(request.url)
-    
+
     # Upload to Azure Blob Storage
     try:
         blob_client = blob_service_client.get_blob_client(container=BLOB_CONTAINER_NAME, blob=file.filename)
         blob_client.upload_blob(file)
-        return f"File {file.filename} uploaded to Blob Storage!"
+        flash(f"File {file.filename} uploaded to Blob Storage!")
+        return redirect(url_for('index'))
     except Exception as e:
-        return f"Failed to upload to Blob Storage: {e}"
+        flash(f"Failed to upload to Blob Storage: {e}")
+        return redirect(request.url)
 
 @app.route('/list')
 def list_files():
