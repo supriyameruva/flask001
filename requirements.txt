@@ -1,6 +1,4 @@
-Flask==2.3.2
-Werkzeug==2.3.6
-azure-storage-blob==12.17.0
-python-dotenv==1.0.0
-azure-identity
-azure-storage-file-share
+Flask==2.0.3              # Specify your Flask version
+azure-identity==1.6.1    # For Azure Active Directory (Managed Identity)
+azure-storage-blob==12.13.0  # For Blob Storage access
+azure-storage-file-share==12.8.0 
